@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Clash Grotesk */
+@font-face {
+  font-family: "Clash Grotesk";
+  src: url("./assets/fonts/ClashGrotesk-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+/* Geist */
+@font-face {
+  font-family: "Geist";
+  src: url("./assets/fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    @apply bg-surface text-text-primary antialiased;
+    scrollbar-width: thin;
+    scrollbar-color: #3a2d6e #0a0a0f;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { @apply bg-surface; }
+  ::-webkit-scrollbar-thumb { background: #3a2d6e; border-radius: 2px; }
+
+  input, select, textarea {
+    @apply bg-surface-muted border border-surface-border2 text-text-primary rounded-xl px-4 py-2.5 text-sm outline-none transition-colors duration-200 w-full;
+  }
+  input:focus, select:focus, textarea:focus {
+    @apply border-brand-500;
+  }
+  select option {
+    @apply bg-surface-muted;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-brand-600 to-brand-400 text-white border-0 px-5 py-2.5 rounded-xl font-semibold text-sm cursor-pointer transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent border border-surface-border text-brand-200 px-4 py-2 rounded-xl text-sm cursor-pointer transition-all duration-200 hover:bg-surface-muted hover:border-brand-500;
+  }
+
+  .btn-danger {
+    @apply bg-red-900/40 border-0 text-red-400 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-red-900/60;
+  }
+
+  .btn-success {
+    @apply bg-green-900/40 border-0 text-green-400 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-green-900/60;
+  }
+
+  .card {
+    @apply bg-surface-card border border-surface-border rounded-2xl;
+  }
+
+  .stat-card {
+    @apply bg-surface-card border border-surface-border rounded-2xl p-5;
+  }
+
+  .badge {
+    @apply inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+
+  .badge-purple {
+    @apply bg-brand-900/60 text-brand-200;
+  }
+
+  .badge-green {
+    @apply bg-green-900/40 text-green-400;
+  }
+
+  .badge-amber {
+    @apply bg-amber-900/40 text-amber-400;
+  }
+
+  .badge-red {
+    @apply bg-red-900/40 text-red-400;
+  }
+
+  .prompt-card {
+    @apply bg-surface-card border border-surface-border rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:border-brand-500 hover:-translate-y-1;
+    box-shadow: 0 0 0 transparent;
+  }
+  .prompt-card:hover {
+    box-shadow: 0 8px 30px rgba(124, 85, 245, 0.2);
+  }
+
+  .tab-btn {
+    @apply px-4 py-2 rounded-xl text-sm font-medium border-0 bg-transparent text-text-secondary cursor-pointer transition-all duration-200 hover:text-brand-200;
+  }
+
+  .tab-btn.active {
+    @apply bg-surface-border text-brand-200;
+  }
+
+  .table-header {
+    @apply grid px-4 py-3 bg-surface text-xs text-text-secondary font-semibold uppercase tracking-wider;
+  }
+
+  .table-row {
+    @apply grid px-4 py-3 border-b border-surface-border items-center text-sm transition-colors hover:bg-surface-muted;
+  }
+
+  .page-title {
+    @apply text-3xl font-bold;
+  }
+
+  .section-title {
+    @apply text-2xl font-bold;
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 40px rgba(124, 85, 245, 0.15);
+  }
+}
