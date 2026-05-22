@@ -20,7 +20,7 @@ const HomePage = ({ setPage, setSelectedPrompt }) => {
 
   return (
     <div className="w-full max-w-7xl mx-auto">
-      {/* ── Hero ── */}
+      {/* Hero */}
       <section className="relative text-center px-6 md:px-10 pt-20 pb-16 overflow-hidden">
         {/* glow bg */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -57,7 +57,7 @@ const HomePage = ({ setPage, setSelectedPrompt }) => {
         </div>
       </section>
 
-      {/* ── How It Works ── */}
+      {/* How It Works */}
       <section className="px-6 md:px-10 py-16">
         <h2 className="section-title text-center mb-10">How It Works</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 ">
@@ -72,7 +72,7 @@ const HomePage = ({ setPage, setSelectedPrompt }) => {
         </div>
       </section>
 
-      {/* ── Top Sellers ── */}
+      {/* Top Sellers */}
       <section className="px-6 md:px-10 py-4 pb-16">
         <div className="flex justify-between items-center mb-6">
           <h2 className="section-title">🔥 Top Sellers</h2>
@@ -89,7 +89,7 @@ const HomePage = ({ setPage, setSelectedPrompt }) => {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* CTA */}
       <section className="mx-6 md:mx-10 mb-16 rounded-2xl bg-gradient-to-br from-[#1a0f3a] to-[#2d1260] border border-surface-border p-12 text-center">
         <h2 className="font-syne text-3xl font-bold mb-4">Ready to Start Creating?</h2>
         <p className="text-text-secondary mb-8 text-base">

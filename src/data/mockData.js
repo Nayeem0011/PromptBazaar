@@ -34,4 +34,6 @@ export const MONTHLY_REVENUE = [
   { month: "Mar", revenue: 9800 },
   { month: "Apr", revenue: 13600 },
   { month: "May", revenue: 9380 },
+  { month: "Jun", revenue: 2380 },
+  { month: "Jul", revenue: 4380 },
 ];
