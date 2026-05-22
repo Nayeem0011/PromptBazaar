@@ -1,209 +1,608 @@
-import { useState } from "react";
-import { PROMPTS, USERS, WITHDRAWALS, MONTHLY_REVENUE } from "../data/mockData";
+import { useMemo, useState } from "react";
+import { Users, Wallet, BarChart3, ShieldCheck, CheckCircle2, XCircle, LayoutGrid, TrendingUp, Download, Sparkles, } from "lucide-react";
+import { PROMPTS, USERS, WITHDRAWALS, MONTHLY_REVENUE, } from "../data/mockData";
 
-const MAX_REV = Math.max(...MONTHLY_REVENUE.map((m) => m.revenue));
+const AdminPanel = () => {
 
-export default function AdminPanel() {
-  const [tab, setTab] = useState("prompts");
+  const [tab, setTab] = useState("overview");
   const [prompts, setPrompts] = useState(PROMPTS);
   const [withdrawals, setWithdrawals] = useState(WITHDRAWALS);
 
-  const pending = prompts.filter((p) => !p.approved);
-  const approved = prompts.filter((p) => p.approved);
+  const pendingPrompts = useMemo(
+    () => prompts.filter((p) => !p.approved),
+    [prompts]
+  );
 
-  const approvePrompt = (id) => setPrompts((prev) => prev.map((p) => p.id === id ? { ...p, approved: true } : p));
-  const rejectPrompt = (id) => setPrompts((prev) => prev.filter((p) => p.id !== id));
-  const payWithdrawal = (id) => setWithdrawals((prev) => prev.map((w) => w.id === id ? { ...w, status: "completed" } : w));
-  const rejectWithdrawal = (id) => setWithdrawals((prev) => prev.map((w) => w.id === id ? { ...w, status: "rejected" } : w));
+  const approvedPrompts = useMemo(
+    () => prompts.filter((p) => p.approved),
+    [prompts]
+  );
 
-  const TABS = ["prompts", "users", "revenue", "withdrawals"];
+  const pendingWithdrawals = useMemo(
+    () => withdrawals.filter((w) => w.status === "pending"),
+    [withdrawals]
+  );
+
+  const MAX_REV = Math.max(...MONTHLY_REVENUE.map((m) => m.revenue));
+
+  const approvePrompt = (id) => {
+    setPrompts((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, approved: true } : p
+      )
+    );
+  };
+
+  const rejectPrompt = (id) => {
+    setPrompts((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const payWithdrawal = (id) => {
+    setWithdrawals((prev) =>
+      prev.map((w) =>
+        w.id === id
+          ? { ...w, status: "completed" }
+          : w
+      )
+    );
+  };
+
+  const rejectWithdrawal = (id) => {
+    setWithdrawals((prev) =>
+      prev.map((w) =>
+        w.id === id
+          ? { ...w, status: "rejected" }
+          : w
+      )
+    );
+  };
+
+  const TABS = [
+    {
+      id: "overview",
+      label: "Overview",
+      icon: LayoutGrid,
+    },
+    {
+      id: "prompts",
+      label: "Prompts",
+      icon: Sparkles,
+    },
+    {
+      id: "users",
+      label: "Users",
+      icon: Users,
+    },
+    {
+      id: "revenue",
+      label: "Revenue",
+      icon: TrendingUp,
+    },
+    {
+      id: "withdrawals",
+      label: "Withdrawals",
+      icon: Wallet,
+    },
+  ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 md:px-10 py-8">
-      <div className="flex items-center gap-3 mb-2">
-        <h1 className="page-title">Admin Panel</h1>
-        <span className="badge badge-amber">🛡 Admin</span>
-      </div>
-      <p className="text-text-secondary text-sm mb-8">Platform overview & management</p>
+    <div className="min-h-screen bg-[#07070f] text-white px-4 md:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#14142b] via-[#0f0f1e] to-[#090912] p-8 mb-8">
+          <div className="absolute top-0 right-0 w-72 h-72 bg-violet-600/20 blur-3xl rounded-full" />
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-cyan-500/10 blur-3xl rounded-full" />
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-        {[
-          [prompts.filter((p) => p.approved).length.toString(), "Live Prompts", "text-brand-200"],
-          [USERS.length.toString(), "Total Users", "text-amber-400"],
-          ["৳ 52,400", "Total Revenue", "text-green-400"],
-          [pending.length.toString(), "Pending Review", "text-red-400"],
-        ].map(([val, label, color]) => (
-          <div key={label} className="stat-card">
-            <div className="text-xs text-text-secondary mb-2">{label}</div>
-            <div className={`font-syne text-2xl font-bold ${color}`}>{val}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-1 mb-6 flex-wrap">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`tab-btn capitalize ${tab === t ? "active" : ""}`}
-          >
-            {t}
-            {t === "prompts" && pending.length > 0 && (
-              <span className="ml-1.5 badge badge-red !px-1.5 !py-0">{pending.length}</span>
-            )}
-            {t === "withdrawals" && withdrawals.filter((w) => w.status === "pending").length > 0 && (
-              <span className="ml-1.5 badge badge-amber !px-1.5 !py-0">
-                {withdrawals.filter((w) => w.status === "pending").length}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Prompts Tab ── */}
-      {tab === "prompts" && (
-        <div className="space-y-6">
-          {pending.length > 0 && (
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
-              <h3 className="font-semibold text-amber-400 mb-3">⏳ Pending Approval ({pending.length})</h3>
-              <div className="card overflow-hidden">
-                <div className="table-header grid-cols-[2fr_1fr_1fr_180px]">
-                  <span>Title</span><span>Seller</span><span>Category</span><span>Actions</span>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-2xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center">
+                  <ShieldCheck className="w-6 h-6 text-violet-300" />
                 </div>
-                {pending.map((p) => (
-                  <div key={p.id} className="table-row grid-cols-[2fr_1fr_1fr_180px]">
-                    <span className="font-medium text-sm">{p.title}</span>
-                    <span className="text-sm text-text-secondary">{p.seller}</span>
-                    <span className="badge badge-purple self-center">{p.category}</span>
-                    <div className="flex gap-2">
-                      <button className="btn-success" onClick={() => approvePrompt(p.id)}>✓ Approve</button>
-                      <button className="btn-danger" onClick={() => rejectPrompt(p.id)}>✕ Reject</button>
+
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-black font-syne">
+                    Admin Dashboard
+                  </h1>
+
+                  <p className="text-sm text-zinc-400 mt-1">
+                    Manage prompts, users, revenue & withdrawals
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button className="px-5 py-3 rounded-2xl bg-violet-600 hover:bg-violet-500 transition-all font-semibold text-sm">
+                Generate Report
+              </button>
+
+              <button className="px-5 py-3 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all text-sm">
+                Export Data
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+          {[
+            {
+              title: "Live Prompts",
+              value: approvedPrompts.length,
+              icon: Sparkles,
+              color:
+                "from-violet-600/20 to-fuchsia-500/10 text-violet-300",
+            },
+            {
+              title: "Total Users",
+              value: USERS.length,
+              icon: Users,
+              color:
+                "from-cyan-500/20 to-blue-500/10 text-cyan-300",
+            },
+            {
+              title: "Revenue",
+              value: "৳ 52,400",
+              icon: Wallet,
+              color:
+                "from-emerald-500/20 to-green-500/10 text-emerald-300",
+            },
+            {
+              title: "Pending Review",
+              value: pendingPrompts.length,
+              icon: BarChart3,
+              color:
+                "from-amber-500/20 to-orange-500/10 text-amber-300",
+            },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className={`rounded-3xl border border-white/10 bg-gradient-to-br ${item.color} p-5 backdrop-blur-xl`}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <div className="text-sm text-zinc-400">
+                  {item.title}
+                </div>
+
+                <div className="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center">
+                  <item.icon className="w-5 h-5" />
+                </div>
+              </div>
+
+              <h2 className="text-3xl font-black font-syne">
+                {item.value}
+              </h2>
+            </div>
+          ))}
+        </div>
+
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-3 mb-8">
+          {TABS.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => setTab(item.id)}
+                className={`flex items-center gap-2 px-5 py-3 rounded-2xl border transition-all duration-300 text-sm font-medium
+                  
+                  ${tab === item.id
+                    ? "bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-600/20"
+                    : "bg-white/5 border-white/10 hover:bg-white/10 text-zinc-300"
+                  }
+                `}
+              >
+                <Icon className="w-4 h-4" />
+
+                {item.label}
+
+                {item.id === "prompts" &&
+                  pendingPrompts.length > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-red-500 text-white text-xs">
+                      {pendingPrompts.length}
+                    </span>
+                  )}
+
+                {item.id === "withdrawals" &&
+                  pendingWithdrawals.length > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500 text-black text-xs">
+                      {pendingWithdrawals.length}
+                    </span>
+                  )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* OVERVIEW */}
+        {tab === "overview" && (
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            {/* Revenue Chart */}
+            <div className="xl:col-span-2 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h3 className="text-xl font-bold">
+                    Revenue Analytics
+                  </h3>
+
+                  <p className="text-sm text-zinc-500 mt-1">
+                    Monthly platform performance
+                  </p>
+                </div>
+
+                <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs border border-emerald-500/20">
+                  +24.5%
+                </div>
+              </div>
+
+              <div className="space-y-5">
+                {MONTHLY_REVENUE.map((m) => (
+                  <div
+                    key={m.month}
+                    className="flex items-center gap-4"
+                  >
+                    <div className="w-10 text-sm text-zinc-400">
+                      {m.month}
+                    </div>
+
+                    <div className="flex-1 h-3 rounded-full bg-white/5 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-400"
+                        style={{
+                          width: `${(m.revenue / MAX_REV) * 100
+                            }%`,
+                        }}
+                      />
+                    </div>
+
+                    <div className="w-24 text-right text-sm font-semibold text-emerald-400">
+                      ৳ {m.revenue.toLocaleString()}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          )}
 
-          <div>
-            <h3 className="font-semibold mb-3">All Live Prompts ({approved.length})</h3>
-            <div className="card overflow-hidden">
-              <div className="table-header grid-cols-[2fr_1fr_1fr_1fr_100px]">
-                <span>Title</span><span>Seller</span><span>Category</span><span>Downloads</span><span>Status</span>
-              </div>
-              {approved.map((p) => (
-                <div key={p.id} className="table-row grid-cols-[2fr_1fr_1fr_1fr_100px]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#1a103a] to-[#2d1260] flex items-center justify-center text-base shrink-0">
-                      {p.preview}
-                    </div>
-                    <span className="font-medium text-sm line-clamp-1">{p.title}</span>
+            {/* Quick Stats */}
+            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+              <h3 className="text-xl font-bold mb-6">
+                Quick Insights
+              </h3>
+
+              <div className="space-y-5">
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                  <div className="text-sm text-zinc-400 mb-1">
+                    Platform Cut
                   </div>
-                  <span className="text-sm text-text-secondary">{p.seller}</span>
-                  <span className="badge badge-purple self-center">{p.category}</span>
-                  <span className="text-sm">{p.downloads.toLocaleString()}</span>
-                  <span className="badge badge-green self-center">Live</span>
+
+                  <div className="text-2xl font-black text-violet-300">
+                    ৳ 10,480
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                  <div className="text-sm text-zinc-400 mb-1">
+                    Seller Payout
+                  </div>
+
+                  <div className="text-2xl font-black text-emerald-300">
+                    ৳ 41,920
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                  <div className="text-sm text-zinc-400 mb-1">
+                    Total Downloads
+                  </div>
+
+                  <div className="text-2xl font-black text-cyan-300">
+                    18.2K
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PROMPTS */}
+        {tab === "prompts" && (
+          <div className="space-y-8">
+            {/* Pending */}
+            <div className="rounded-3xl border border-white/10 bg-white/[0.03] overflow-hidden">
+              <div className="p-6 border-b border-white/10">
+                <h3 className="text-xl font-bold">
+                  Pending Approval
+                </h3>
+              </div>
+
+              <div className="divide-y divide-white/5">
+                {pendingPrompts.map((p) => (
+                  <div
+                    key={p.id}
+                    className="p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 hover:bg-white/[0.03] transition-all"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-500 flex items-center justify-center text-xl">
+                        {p.preview}
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold text-lg">
+                          {p.title}
+                        </h4>
+
+                        <div className="flex items-center gap-3 mt-2 text-sm text-zinc-400">
+                          <span>{p.seller}</span>
+
+                          <span className="px-2 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300">
+                            {p.category}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => approvePrompt(p.id)}
+                        className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold transition-all"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        Approve
+                      </button>
+
+                      <button
+                        onClick={() => rejectPrompt(p.id)}
+                        className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Approved */}
+            <div className="rounded-3xl border border-white/10 bg-white/[0.03] overflow-hidden">
+              <div className="p-6 border-b border-white/10">
+                <h3 className="text-xl font-bold">
+                  Live Prompts
+                </h3>
+              </div>
+
+              <div className="divide-y divide-white/5">
+                {approvedPrompts.map((p) => (
+                  <div
+                    key={p.id}
+                    className="p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1b1038] to-[#381d78] flex items-center justify-center text-xl">
+                        {p.preview}
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold">
+                          {p.title}
+                        </h4>
+
+                        <div className="flex items-center gap-3 mt-2 text-sm text-zinc-400">
+                          <span>{p.seller}</span>
+
+                          <span className="px-2 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300">
+                            {p.category}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-2 text-zinc-400">
+                        <Download className="w-4 h-4" />
+                        {p.downloads.toLocaleString()}
+                      </div>
+
+                      <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm">
+                        Live
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* USERS */}
+        {tab === "users" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {USERS.map((u) => (
+              <div
+                key={u.id}
+                className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className="flex items-center gap-4 mb-5">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-lg font-black">
+                    {u.name[0]}
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-lg">
+                      {u.name}
+                    </h3>
+
+                    <p className="text-sm text-zinc-500">
+                      {u.email}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mb-5">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold border
+                      
+                      ${u.role === "admin"
+                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                        : u.role === "seller"
+                          ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                          : "bg-violet-500/10 border-violet-500/20 text-violet-300"
+                      }
+                    `}
+                  >
+                    {u.role}
+                  </span>
+
+                  <span className="text-sm text-zinc-500">
+                    {u.joined}
+                  </span>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 mb-5">
+                  <div className="text-sm text-zinc-400 mb-1">
+                    Activity
+                  </div>
+
+                  <div className="font-semibold">
+                    {u.role === "seller"
+                      ? `${u.uploads} uploads`
+                      : u.role === "buyer"
+                        ? `${u.downloads} downloads`
+                        : "Platform Administrator"}
+                  </div>
+                </div>
+
+                <button className="w-full py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-sm font-medium">
+                  Manage User
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* REVENUE */}
+        {tab === "revenue" && (
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h3 className="text-2xl font-bold">
+                  Revenue Analytics
+                </h3>
+
+                <p className="text-sm text-zinc-500 mt-1">
+                  Platform earnings overview
+                </p>
+              </div>
+
+              <div className="px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold">
+                +18% Growth
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {MONTHLY_REVENUE.map((m) => (
+                <div key={m.month}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-zinc-400">
+                      {m.month}
+                    </span>
+
+                    <span className="text-sm font-semibold text-emerald-400">
+                      ৳ {m.revenue.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className="h-4 rounded-full bg-white/5 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-400"
+                      style={{
+                        width: `${(m.revenue / MAX_REV) * 100
+                          }%`,
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ── Users Tab ── */}
-      {tab === "users" && (
-        <div className="card overflow-hidden">
-          <div className="table-header grid-cols-[2fr_1fr_1fr_1fr_100px]">
-            <span>User</span><span>Role</span><span>Joined</span><span>Activity</span><span>Action</span>
-          </div>
-          {USERS.map((u) => (
-            <div key={u.id} className="table-row grid-cols-[2fr_1fr_1fr_1fr_100px]">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-600 to-brand-400 flex items-center justify-center text-xs font-bold shrink-0">
-                  {u.name[0]}
-                </div>
-                <div>
-                  <div className="font-medium text-sm">{u.name}</div>
-                  <div className="text-xs text-text-muted">{u.email}</div>
-                </div>
-              </div>
-              <span className={`badge self-center capitalize ${u.role === "seller" ? "badge-amber" : u.role === "admin" ? "badge-green" : "badge-purple"}`}>
-                {u.role}
-              </span>
-              <span className="text-xs text-text-secondary self-center">{u.joined}</span>
-              <span className="text-xs text-text-secondary self-center">
-                {u.role === "seller" ? `${u.uploads} uploads` : u.role === "buyer" ? `${u.downloads} downloads` : "Platform admin"}
-              </span>
-              <button className="btn-ghost !text-xs !py-1.5 !px-3 self-center">Manage</button>
-            </div>
-          ))}
-        </div>
-      )}
+        {/* WITHDRAWALS */}
+        {tab === "withdrawals" && (
+          <div className="space-y-5">
+            {withdrawals.map((w) => (
+              <div
+                key={w.id}
+                className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5"
+              >
+                <div className="flex flex-col md:flex-row md:items-center gap-5">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center font-black text-black">
+                    {w.seller[0]}
+                  </div>
 
-      {/* ── Revenue Tab ── */}
-      {tab === "revenue" && (
-        <div className="card p-6 max-w-xl">
-          <h3 className="font-semibold mb-6">Monthly Revenue (2025)</h3>
-          <div className="space-y-4">
-            {MONTHLY_REVENUE.map((m) => (
-              <div key={m.month} className="flex items-center gap-3">
-                <span className="text-xs text-text-secondary w-8">{m.month}</span>
-                <div className="flex-1 h-2.5 bg-surface-border rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-brand-600 to-brand-400 rounded-full"
-                    style={{ width: `${(m.revenue / MAX_REV) * 100}%` }}
-                  />
+                  <div>
+                    <h3 className="font-bold text-lg">
+                      {w.seller}
+                    </h3>
+
+                    <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-zinc-400">
+                      <span>{w.method}</span>
+
+                      <span>{w.account}</span>
+
+                      <span>{w.date}</span>
+                    </div>
+                  </div>
                 </div>
-                <span className="text-sm text-green-400 font-semibold w-20 text-right">৳ {m.revenue.toLocaleString()}</span>
+
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                  <div className="text-2xl font-black text-emerald-400">
+                    ৳ {w.amount.toLocaleString()}
+                  </div>
+
+                  {w.status === "pending" ? (
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => payWithdrawal(w.id)}
+                        className="px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold transition-all"
+                      >
+                        Pay
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          rejectWithdrawal(w.id)
+                        }
+                        className="px-5 py-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  ) : (
+                    <span
+                      className={`px-4 py-2 rounded-2xl text-sm font-semibold border
+                        
+                        ${w.status === "completed"
+                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                          : "bg-red-500/10 border-red-500/20 text-red-400"
+                        }
+                      `}
+                    >
+                      {w.status === "completed"
+                        ? "Paid"
+                        : "Rejected"}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
-          <div className="border-t border-surface-border mt-6 pt-5 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-text-secondary">Platform cut (20%)</span>
-              <span className="text-brand-200 font-semibold">৳ 10,480</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-text-secondary">Seller payouts (80%)</span>
-              <span className="text-green-400 font-semibold">৳ 41,920</span>
-            </div>
-            <div className="flex justify-between items-center pt-2 border-t border-surface-border">
-              <span className="text-text-secondary text-sm">Total Revenue</span>
-              <span className="font-syne text-xl font-bold text-brand-200">৳ 52,400</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Withdrawals Tab ── */}
-      {tab === "withdrawals" && (
-        <div className="card overflow-hidden">
-          <div className="table-header grid-cols-[2fr_1fr_1fr_1fr_1fr_160px]">
-            <span>Seller</span><span>Amount</span><span>Method</span><span>Account</span><span>Date</span><span>Action</span>
-          </div>
-          {withdrawals.map((w) => (
-            <div key={w.id} className="table-row grid-cols-[2fr_1fr_1fr_1fr_1fr_160px]">
-              <span className="font-medium text-sm">{w.seller}</span>
-              <span className="text-green-400 font-semibold text-sm">৳ {w.amount.toLocaleString()}</span>
-              <span className="badge badge-purple self-center">{w.method}</span>
-              <span className="text-xs text-text-secondary font-mono">{w.account}</span>
-              <span className="text-xs text-text-secondary">{w.date}</span>
-              {w.status === "pending" ? (
-                <div className="flex gap-2">
-                  <button className="btn-success" onClick={() => payWithdrawal(w.id)}>✓ Pay</button>
-                  <button className="btn-danger" onClick={() => rejectWithdrawal(w.id)}>✕</button>
-                </div>
-              ) : (
-                <span className={`badge self-center ${w.status === "completed" ? "badge-green" : "badge-red"}`}>
-                  {w.status === "completed" ? "Paid" : "Rejected"}
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+        )}
+      </div>
     </div>
-  );
+  )
 }
+
+export default AdminPanel
